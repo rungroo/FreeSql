@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FreeSql.Generator": {
+      "commandName": "Project",
+      "commandLineArgs": "-Razor \"C:\\work\\git\\yr\\rung.tikoo\\3.src\\rung.tikoo.server\\Rung.Tikoo.Api2\\Entities\\__razor.cshtml.txt\" -NameOptions 1,0,0,1 -NameSpace Ktm.Permission.Entities -DB \"Sqlite,Data Source=C:\\work\\git\\yr\\rung.tikoo\\3.src\\rung.tikoo.server\\Rung.Tikoo.Api2\\data\\member.db; Attachs=C:\\work\\git\\yr\\rung.tikoo\\3.src\\rung.tikoo.server\\Rung.Tikoo.Api2\\data\\topic.db,C:\\work\\git\\yr\\rung.tikoo\\3.src\\rung.tikoo.server\\Rung.Tikoo.Api2\\data\\session.db,C:\\work\\git\\yr\\rung.tikoo\\3.src\\rung.tikoo.server\\Rung.Tikoo.Api2\\data\\bet.db,C:\\work\\git\\yr\\rung.tikoo\\3.src\\rung.tikoo.server\\Rung.Tikoo.Api2\\data\\workset.db,C:\\work\\git\\yr\\rung.tikoo\\3.src\\rung.tikoo.server\\Rung.Tikoo.Api2\\data\\favor.db;\" -Filter \"View+StoreProcedure\" -FileName \"{name}.cs\" -output \"C:\\work\\git\\yr\\rung.tikoo\\3.src\\rung.tikoo.server\\Rung.Tikoo.Api2\\Entities\" -snowflake \"Snowflake\" -validate"
+    }
+  }
+}
