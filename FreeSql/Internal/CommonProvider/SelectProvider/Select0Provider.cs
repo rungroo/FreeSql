@@ -154,7 +154,7 @@ namespace FreeSql.Internal.CommonProvider
                 var currentType = firstTb.Table.Type;
                 Expression currentExp = firstTb.Parameter;
 
-                for (var x = 0; x < field.Length; x++)
+                for (var x = firstTbs.Length == 1 ? 1 : 0; x < field.Length; x++)
                 {
                     var tmp1 = field[x];
                     if (_commonUtils.GetTableByEntity(currentType).Properties.TryGetValue(tmp1, out var prop) == false)
@@ -526,6 +526,17 @@ namespace FreeSql.Internal.CommonProvider
                     Expression exp = ConvertStringPropertyToExpression(fi.Field);
                     switch (fi.Operator)
                     {
+                        case DynamicFilterOperator.Contains:
+                        case DynamicFilterOperator.StartsWith:
+                        case DynamicFilterOperator.EndsWith:
+                        case DynamicFilterOperator.NotContains:
+                        case DynamicFilterOperator.NotStartsWith:
+                        case DynamicFilterOperator.NotEndsWith:
+                            if (exp.Type != typeof(string)) exp = Expression.TypeAs(exp, typeof(string));
+                            break;
+                    }
+                    switch (fi.Operator)
+                    {
                         case DynamicFilterOperator.Contains: exp = Expression.Call(exp, MethodStringContains, Expression.Constant(Utils.GetDataReaderValue(exp.Type, fi.Value?.ToString()), exp.Type)); break;
                         case DynamicFilterOperator.StartsWith: exp = Expression.Call(exp, MethodStringStartsWith, Expression.Constant(Utils.GetDataReaderValue(exp.Type, fi.Value?.ToString()), exp.Type)); break;
                         case DynamicFilterOperator.EndsWith: exp = Expression.Call(exp, MethodStringEndsWith, Expression.Constant(Utils.GetDataReaderValue(exp.Type, fi.Value?.ToString()), exp.Type)); break;
@@ -698,18 +709,23 @@ namespace FreeSql.Internal.CommonProvider
             var tmpOrderBy = _orderby;
             var tmpSkip = _skip;
             var tmpLimit = _limit;
+            var tmpDistinct = _distinct;
             _orderby = null; //解决 select count(1) from t order by id 这样的 SQL 错误
             _skip = 0;
             _limit = 0;
+            _distinct = false;
             try
             {
-                return this.ToList<int>($"count(1){_commonUtils.FieldAsAlias("as1")}").Sum(); //这里的 Sum 为了分表查询
+                var countField = "1";
+                if (tmpDistinct && _selectExpression != null) countField = $"distinct {this.GetExpressionField(_selectExpression, FieldAliasOptions.AsProperty).field}";
+                return this.ToList<int>($"count({countField}){_commonUtils.FieldAsAlias("as1")}").Sum(); //这里的 Sum 为了分表查询
             }
             finally
             {
                 _orderby = tmpOrderBy;
                 _skip = tmpSkip;
                 _limit = tmpLimit;
+                _distinct = tmpDistinct;
             }
         }
         public TSelect Count(out long count)
@@ -741,18 +757,23 @@ namespace FreeSql.Internal.CommonProvider
             var tmpOrderBy = _orderby;
             var tmpSkip = _skip;
             var tmpLimit = _limit;
+            var tmpDistinct = _distinct;
             _orderby = null;
             _skip = 0;
             _limit = 0;
+            _distinct = false;
             try
             {
-                return (await this.ToListAsync<int>($"count(1){_commonUtils.FieldAsAlias("as1")}", cancellationToken)).Sum(); //这里的 Sum 为了分表查询
+                var countField = "1";
+                if (tmpDistinct && _selectExpression != null) countField = $"distinct {this.GetExpressionField(_selectExpression, FieldAliasOptions.AsProperty).field}";
+                return (await this.ToListAsync<int>($"count({countField}){_commonUtils.FieldAsAlias("as1")}", cancellationToken)).Sum(); //这里的 Sum 为了分表查询
             }
             finally
             {
                 _orderby = tmpOrderBy;
                 _skip = tmpSkip;
                 _limit = tmpLimit;
+                _distinct = tmpDistinct;
             }
         }
         public virtual Task<List<T1>> ToListAsync(bool includeNestedMembers = false, CancellationToken cancellationToken = default)

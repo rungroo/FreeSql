@@ -205,7 +205,7 @@ namespace FreeSql
                 if (_table.ColumnsByCsIgnore.ContainsKey(prop.Name)) return;
                 if (_table.ColumnsByCs.ContainsKey(prop.Name)) return;
 
-                var tref = _table.GetTableRef(prop.Name, true);
+                var tref = _table.GetTableRef(prop.Name, false); //防止非正常的导航属性报错
                 if (tref == null) return;
                 switch (tref.RefType)
                 {
@@ -243,7 +243,8 @@ namespace FreeSql
 
                         if (curList.Any() == false) //全部删除
                         {
-                            var delall = _db.OrmOriginal.Delete<object>().AsType(tref.RefMiddleEntityType)
+                            var delall = _db.OrmOriginal.Delete<object>()
+                                .AsType(tref.RefMiddleEntityType)
                                 .WithTransaction(_uow?.GetOrBeginTransaction());
                             foreach (var midWhere in midWheres) delall.Where(midWhere);
                             var sql = delall.ToSql();
